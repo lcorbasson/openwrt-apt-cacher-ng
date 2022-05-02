@@ -1,94 +1,79 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2012 Gerad Munsch <gmunsch@unforgivendevelopment.com>
 
-# XXX: We may want to convert this init script to handle a UCI-style config in
-#      the future (ie: /etc/config/apt-cacher-ng), and parse the config and
-#      build a configuration file on each startup.
-
 START=95
 STOP=10
 
-NAME="apt-cacher-ng"
-DAEMON="/usr/sbin/apt-cacher-ng"
-CFG_DIR="/etc/apt-cacher-ng"
+USE_PROCD=1
 
-error()
+PROG="/usr/sbin/apt-cacher-ng"
+APT_CACHER_NG_CONF="/etc/apt-cacher-ng/acng.conf"
+APT_CACHER_NG_USER="apt-cacher-ng"
+APT_CACHER_NG_GROUP=$APT_CACHER_NG_USER
+
+start_service()
 {
-    echo "${initscript}:" "$@" 1>&2
-}
-
-start()
-{
-    PIDOF=$(pidof apt-cacher-ng)
-    if [ -n "$PIDOF" ] && [ -e "$PIDFILE" ] && [ "$PIDOF" = "$(cat $PIDFILE)" ] ; then
-        return 255
-    fi
-    rm -rf "/var/run/$NAME" || return 1
-
-    # OpenWRT service wrapper parameters
-    SERVICE_UID="$NAME" # XXX: We may need a numerical UID here.
-    SERVICE_GID="$NAME" # XXX: We may need a numerical GID here.
-    SERVICE_PID_FILE="/var/run/$NAME/pid"
-
-    # Extra 'apt-cacher-ng' parameters
-    SOCKET_FILE="/var/run/$NAME/socket"
-    acng_opts="-c $CFG_DIR pidfile=$SERVICE_PID_FILE SocketPath=$SOCKET_FILE foreground=0"
-
     create_run_dir
+
+    if [ -z "$(grep -h '^SocketPath:' $APT_CACHER_NG_CONF)" ]; then
+       local acng_socket_path="SocketPath=/var/run/apt-cacher-ng/socket" 
+    fi 
+
     create_log_dir
     chmod_cache_dir
     chmod_cfg_dir
-    service_start $DAEMON $acng_opts
-}
 
-stop()
-{
-    # OpenWRT service wrapper parameters
-    SERVICE_PID_FILE="/var/run/$NAME/pid"
-
-    service_stop $DAEMON
-    rm -f $SERVICE_PID_FILE
+    procd_open_instance
+    procd_set_param command $PROG -c "$(dirname $APT_CACHER_NG_CONF)" foreground=1 $acng_socket_path
+    procd_set_param pidfile "/var/run/apt-cacher-ng/pid"
+    procd_set_param reload_signal SIGHUP
+    procd_set_param user $APT_CACHER_NG_USER
+    procd_set_param file $APT_CACHER_NG_CONF
+        
+    procd_close_instance
 }
 
 create_run_dir()
 {
-    local acng_run_dir="/var/run/$NAME"
+    local acng_run_dir="/var/run/apt-cacher-ng"
     if [ ! -d "$acng_run_dir" ]; then
         mkdir -p $acng_run_dir
-        chown $NAME:$NAME $acng_run_dir
+        chown $APT_CACHER_NG_USER:$APT_CACHER_NG_GROUP "$acng_run_dir"
         chmod 0755 "$acng_run_dir"
     fi
 }
 
 create_log_dir()
 {
-    local acng_log_dir="/var/log/$NAME"
+    if [ -z "$(grep -h '^LogDir:' $APT_CACHER_NG_CONF)" ]; then
+       local acng_log_dir="$(grep -h '^LogDir:' $APT_CACHER_NG_CONF | awk '{print $2}')"
+    else
+       local acng_log_dir="/var/log/apt-cacher-ng"
+    fi
+
     if [ ! -d "$acng_log_dir" ]; then
         mkdir -p "$acng_log_dir"
-        chown $NAME:$NAME "$acng_log_dir"
+        chown $APT_CACHER_NG_USER:$APT_CACHER_NG_GROUP "$acng_log_dir"
         chmod 2755 "$acng_log_dir"
     fi
 }
 
 chmod_cache_dir()
 {
-    local acng_cache_dir=$(grep -h '^CacheDir:' $CFG_DIR/acng.conf 2>/dev/null | \
-        while read a b ; do
-            echo "$b"
-        done)
-
-    chown $NAME:$NAME "$acng_cache_dir"
+    local acng_cache_dir="$(grep -h '^CacheDir:' $APT_CACHER_NG_CONF | awk '{print $2}')"
+    chown $APT_CACHER_NG_USER:$APT_CACHER_NG_GROUP "$acng_cache_dir"
     chmod 2755 "$acng_cache_dir"
 }
 
 # We can drop this for 21.0.2 where FILE_MODES option is working
 chmod_cfg_dir()
 {
-    for cfg_file in $CFG_DIR/*; do
-       if [ "$cfg_file" = "$CFG_DIR/security.conf" ]; then
-           chown $NAME:$NAME "$cfg_file";
+    for cfg_file in $(dirname $APT_CACHER_NG_CONF)/*; do
+       if [ "$cfg_file" = "$(dirname $APT_CACHER_NG_CONF)/security.conf" -o "$cfg_file" = "$(dirname $APT_CACHER_NG_CONF)/acng.conf" ]; then
+           chgrp $APT_CACHER_NG_GROUP "$cfg_file"
+           chmod 640 "$cfg_file"
        else
-           chmod 644 "$cfg_file";
+           chmod 644 "$cfg_file"
        fi
     done
 }
