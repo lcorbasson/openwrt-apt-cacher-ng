@@ -1,7 +1,7 @@
 # OpenWrt apt-cacher-ng feed
 
 ## News
-* 2020-06-08 Update to openwrt 19.07.3 - apt-cacher-ng 3.6.3
+* 2022-11-27 Update to openwrt 19.07.3- apt-cacher-ng 3.6.4
 
 ## Build the package from apt-cacher-ng feed
 1. Download SDK for your board. Note this is only an example. You have to select and download the SDK for your particular board.
@@ -53,13 +53,13 @@
 
 1. Copy ipk file over to openwrt router
     ```
-    rsync -av bin/packages/arm_cortex-a9_vfpv3-d16/local/apt-cacher-ng_3.6.3-1_arm_cortex-a9_vfpv3-d16.ipk root@openwrt:
+    rsync -av bin/packages/arm_cortex-a9_vfpv3-d16/local/apt-cacher-ng_3.6.4-1_arm_cortex-a9_vfpv3-d16.ipk root@openwrt:
     ```
 
 1. Install the apt-cacher-ng package [3]
     ```
     ssh root@openwrt
-    opkg install apt-cacher-ng_3.6.3-1_arm_cortex-a9_vfpv3-d16.ipk
+    opkg install apt-cacher-ng_3.6.4-1_arm_cortex-a9_vfpv3-d16.ipk
     ```
     
 1. Configure apt-cacher-ng service
@@ -73,7 +73,6 @@
 
 ## TODO
 * Adjust pathnames in README.md
-* Use procd
 * Autoconfigure step 9
 
 ## Troubleshooting
@@ -88,7 +87,7 @@ friendly commands
 Adjust /home/bill/Downloads/hardware/linksys1200ac/openwrt-packages/apt-cacher-ng/Makefile and retry
 ```
 ./scripts/feeds uninstall apt-cacher-ng
-rm -rf  build_dir/target-arm_cortex-a9+vfpv3-d16_musl_eabi/apt-cacher-ng-3.6.3/
+rm -rf  build_dir/target-arm_cortex-a9+vfpv3-d16_musl_eabi/apt-cacher-ng-3.6.4/
 ./scripts/feeds install apt-cacher-ng
 make menuconfig
 ```
@@ -103,17 +102,17 @@ Adjust /home/bill/Downloads/hardware/linksys1200ac/openwrt-packages/apt-cacher-n
 * setup once:
     * download the apt-cacher-ng source
         ```
-        wget http://ftp.us.debian.org/debian/pool/main/a/apt-cacher-ng/apt-cacher-ng_3.6.3.orig.tar.xz
+        wget http://ftp.us.debian.org/debian/pool/main/a/apt-cacher-ng/apt-cacher-ng_3.6.4.orig.tar.xz
         ```
 
     * extract it
          ```
-         tar -xJf apt-cacher-ng_3.6.3.orig.tar.xz
+         tar -xJf apt-cacher-ng_3.6.4.orig.tar.xz
          ```
 
     * rename and copy it to have an easy diff target
          ```
-         mv apt-cacher-ng_3.6.3 a
+         mv apt-cacher-ng_3.6.4 a
          cp -a a b
          ```
 
@@ -125,7 +124,7 @@ Adjust /home/bill/Downloads/hardware/linksys1200ac/openwrt-packages/apt-cacher-n
 
     * build
         ```
-        rm -rf build_dir/target-arm_cortex-a9+vfpv3-d16_musl_eabi/apt-cacher-ng-3.6.3/ 
+        rm -rf build_dir/target-arm_cortex-a9+vfpv3-d16_musl_eabi/apt-cacher-ng-3.6.4/ 
         make V=s
         ```
 
@@ -134,9 +133,9 @@ Adjust Buildroot Makefile and retry:
 ```
 ssh root@openwrt opkg remove apt-cacher-ng
 ./scripts/feeds uninstall apt-cacher-ng
-rm -rf build_dir/target-arm_cortex-a9+vfpv3-d16_musl_eabi/apt-cacher-ng-3.6.3/
+rm -rf build_dir/target-arm_cortex-a9+vfpv3-d16_musl_eabi/apt-cacher-ng-3.6.4/
 ./scripts/feeds install apt-cacher-ng
 make -j5
-rsync -av bin/packages/arm_cortex-a9_vfpv3-d16/local/apt-cacher-ng_3.6.3-1_arm_cortex-a9_vfpv3-d16.ipk root@openwrt:
-ssh root@openwrt opkg install apt-cacher-ng_3.6.3-1_arm_cortex-a9_vfpv3-d16.ipk
+rsync -av bin/packages/arm_cortex-a9_vfpv3-d16/local/apt-cacher-ng_3.6.4-1_arm_cortex-a9_vfpv3-d16.ipk root@openwrt:
+ssh root@openwrt opkg install apt-cacher-ng_3.6.4-1_arm_cortex-a9_vfpv3-d16.ipk
 ```
