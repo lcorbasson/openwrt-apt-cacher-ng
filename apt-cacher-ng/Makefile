@@ -42,7 +42,7 @@ define Package/apt-cacher-ng
   DEPENDS:=+bzip2 +zlib +libstdcpp +libopenssl +liblzma +libevent2 +libevent2-pthreads +libatomic
   URL:=http://www.unix-ag.uni-kl.de/~bloch/acng/
   MENU:=1
-  USERID:=apt-cacher-ng:apt-cacher-ng
+  USERID:=apt-cacher-ng=319:apt-cacher-ng=319
   FILE_MODES:=/etc/apt-cacher-ng/security.conf:apt-cacher-ng:apt-cacher-ng:0600
 endef
 
