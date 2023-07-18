@@ -110,7 +110,7 @@
     ```
 
 ## TODO
-* Autoconfigure step 9
+* Autoconfigure step 11
 
 ## Troubleshooting
 This is possible only if you have followed step 3a.
