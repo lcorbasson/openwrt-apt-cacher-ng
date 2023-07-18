@@ -71,7 +71,7 @@
     scp "bin/packages/${DISTRIB_ARCH}/aptcacherng/apt-cacher-ng_${APT_CACHER_NG_VERSION}_${DISTRIB_ARCH}.ipk" root@router:
     ```
 
-1. Install the apt-cacher-ng package [3]
+1. Install the apt-cacher-ng package [3]:
     ```
     ssh root@router opkg update
     ssh root@router opkg install "apt-cacher-ng_${APT_CACHER_NG_VERSION}_${DISTRIB_ARCH}.ipk"
@@ -82,8 +82,26 @@
     ssh root@router
     ```
     
-    * edit `/etc/apt-cacher-ng/acng.conf` to configure the CacheDir and LogDir
-    * create CacheDir, LogDir and /var/run/apt-cacher-ng/. Chown them to `apt-cacher-ng.apt-cacher.ng`
+    * Edit `/etc/apt-cacher-ng/acng.conf` to configure the `CacheDir` and `LogDir`. You'll probably want to [use USB storage](https://openwrt.org/docs/guide-user/storage/usb-drives-quickstart) for this, e.g. here `/mnt/sda1`:
+    ```
+    # Storage directory for downloaded data and related maintenance activity.
+    #
+    # Note: When the value for CacheDir is changed, change the file
+    # /lib/systemd/system/apt-cacher-ng.service too
+    #
+    #CacheDir: /var/tmp
+    CacheDir: /mnt/sda1/apt-cacher-ng/cache
+    
+    # Log file directory, can be set empty to disable logging
+    #
+    #LogDir: /var/tmp
+    LogDir: /mnt/sda1/apt-cacher-ng/log
+    ```
+    * Create the `CacheDir`, `LogDir` and `/var/run/apt-cacher-ng` directories, and change their ownership to `apt-cacher-ng.apt-cacher.ng`:
+    ```
+    mkdir -p "/mnt/sda1/apt-cacher-ng/cache" "/mnt/sda1/apt-cacher-ng/log" "/var/run/apt-cacher-ng"
+    chown apt-cacher-ng.apt-cacher.ng "/mnt/sda1/apt-cacher-ng/cache" "/mnt/sda1/apt-cacher-ng/log" "/var/run/apt-cacher-ng"
+    ```
 
 1. Enable and restart the service
     ```
