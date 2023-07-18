@@ -109,6 +109,9 @@
     /etc/init.d/apt-cacher-ng restart
     ```
 
+1. Configure the clients, e.g. by following [these instructions for Debian](https://wiki.debian.org/AptCacherNg) and its derivatives like Ubuntu.
+
+
 ## TODO
 * Autoconfigure step 11
 
